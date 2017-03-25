@@ -1,0 +1,29 @@
+version: '3'
+services:
+  send:
+    build: .
+    command: -c /fluent/fluent.conf
+    volumes:
+      - ./send.d:/fluent
+      - ./in:/log
+    ports:
+      - "24224:24224"
+    links:
+      - recv:recv.net
+      - fake-s3:test-bucket.fake-s3.net
+
+  recv:
+    build: .
+    command: -c /fluent/fluent.conf
+    volumes:
+      - ./recv.d:/fluent
+      - ./out:/log
+  
+  fake-s3:
+    image: lphoward/fake-s3
+    #command: ["-r", "/fakes3_root", "-p", "4569"]
+    volumes:
+      - ./fake-s3-root:/fakes3_root
+    ports:
+      - "4569:4569"
+  
